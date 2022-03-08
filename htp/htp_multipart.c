@@ -719,11 +719,12 @@ htp_status_t htp_mpart_part_handle_data(htp_multipart_part_t *part, const unsign
                     if (isspace(data[0])) {
                         // Folding; add to the existing line.
                         part->parser->multipart.flags |= HTP_MULTIPART_PART_HEADER_FOLDING;
-                        part->parser->pending_header_line = bstr_add_mem(part->parser->pending_header_line, data, len);
-                        if (part->parser->pending_header_line == NULL) {
+                        bstr *new_pending_header = bstr_add_mem(part->parser->pending_header_line, data, len);
+                        if (new_pending_header == NULL) {
                             bstr_free(line);
                             return HTP_ERROR;
                         }
+                        part->parser->pending_header_line = new_pending_header;
                     } else {
                         // Process the pending header line.                        
                         if (htp_mpartp_parse_header(part, bstr_ptr(part->parser->pending_header_line),
